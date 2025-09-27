@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>政治三明治 · 分步决策</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Apple风格全局样式 - 移动端优化 */
+    :root {
+      --apple-bg: #ff0000;
+      --apple-card-bg: rgba(255, 255, 255, 0.95);
+      --apple-primary: #007AFF;
+      --apple-secondary: #8E8E93;
+      --apple-border: #C6C6C8;
+      --apple-text: #1D1D1F;
+      --apple-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      --apple-success: #34C759;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #ff0000 0%, #ff6b6b 100%);
+      color: var(--apple-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 100%;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    /* 语言切换按钮 - 移动端优化 */
+    .language-switcher {
+      position: absolute;
+      top: 70px;
+      right: 15px;
+      display: flex;
+      gap: 5px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+    }
+    
+    .lang-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--apple-text);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    .lang-btn.active {
+      background: var(--apple-primary);
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .lang-btn:hover:not(.active) {
+      background: rgba(0, 122, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .page {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-top: 20px;
+      color: white;
+    }
+    
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      line-height: 1.2;
+    }
+    
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    /* 重新设计的进度指示器 - 移动端优化 */
+    .progress-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 15px;
+      margin: 20px 0;
+      box-shadow: var(--apple-shadow);
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .step-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #E5E5EA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8E8E93;
+      font-weight: 600;
+      margin-bottom: 5px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+    
+    .step-circle.active {
+      background-color: var(--apple-primary);
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .step-circle.completed {
+      background-color: var(--apple-success);
+      color: white;
+    }
+    
+    .step-label {
+      font-size: 10px;
+      color: #8E8E93;
+      text-align: center;
+      font-weight: 500;
+      line-height: 1.2;
+      word-break: keep-all;
+    }
+    
+    .step-label.active {
+      color: var(--apple-primary);
+      font-weight: 600;
+    }
+    
+    .progress-bar {
+      position: absolute;
+      top: 32px;
+      left: 10%;
+      height: 3px;
+      width: 80%;
+      background-color: #E5E5EA;
+      z-index: 1;
+    }
+    
+    .progress {
+      height: 100%;
+      background-color: var(--apple-primary);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+    
+    .question-card {
+      background-color: var(--apple-card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: var(--apple-shadow);
+      backdrop-filter: blur(10px);
+    }
+    
+    .question-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      line-height: 1.3;
+    }
+    
+    .question-card h2 .step-number {
+      background-color: var(--apple-primary);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background-color: #F2F2F7;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    
+    .option:hover {
+      background-color: #E5E5EA;
+      transform: translateY(-2px);
+    }
+    
+    .option.selected {
+      background-color: rgba(0, 122, 255, 0.1);
+      border-color: var(--apple-primary);
+    }
+    
+    .option input {
+      display: none;
+    }
+    
+    .option-label {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      cursor: pointer;
+    }
+    
+    .option-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--apple-border);
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .option input:checked + .option-label .option-circle {
+      border-color: var(--apple-primary);
+      background-color: var(--apple-primary);
+    }
+    
+    .option input:checked + .option-label .option-circle::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: white;
+    }
+    
+    .option-text {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    
+    .option-subtext {
+      font-size: 13px;
+      color: var(--apple-secondary);
+      margin-top: 3px;
+      line-height: 1.3;
+    }
+    
+    .checkbox-option .option-circle {
+      border-radius: 6px;
+    }
+    
+    .checkbox-option input:checked + .option-label .option-circle {
+      background-color: var(--apple-primary);
+      border-color: var(--apple-primary);
+    }
+    
+    .checkbox-option input:checked + .option-label .option-circle::after {
+      content: "✓";
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 25px;
+      gap: 10px;
+    }
+    
+    .apple-button {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 50px;
+    }
+    
+    .apple-button.primary {
+      background-color: var(--apple-primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+    
+    .apple-button.secondary {
+      background-color: rgba(255, 255, 255, 0.9);
+      color: var(--apple-text);
+    }
+    
+    .apple-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    .apple-button.primary:hover:not(:disabled) {
+      background-color: #0056CC;
+      transform: translateY(-2px);
+    }
+    
+    .apple-button.secondary:hover:not(:disabled) {
+      background-color: #ffffff;
+      transform: translateY(-2px);
+    }
+    
+    .apple-button i {
+      margin-right: 8px;
+    }
+    
+    /* 确认模态框样式 - 移动端优化 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+      backdrop-filter: blur(5px);
+      padding: 15px;
+    }
+    
+    .modal {
+      background-color: var(--apple-card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 350px;
+      box-shadow: var(--apple-shadow);
+      animation: slideUp 0.3s ease;
+      text-align: center;
+    }
+    
+    .modal-icon {
+      font-size: 40px;
+      color: var(--apple-primary);
+      margin-bottom: 12px;
+    }
+    
+    .modal h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .modal p {
+      font-size: 16px;
+      color: var(--apple-secondary);
+      margin-bottom: 20px;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .modal-buttons .apple-button {
+      flex: 1;
+      min-height: 44px;
+    }
+    
+    /* 最终确认页面样式 - 移动端优化 */
+    .summary-card {
+      background-color: var(--apple-card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: var(--apple-shadow);
+    }
+    
+    .summary-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .summary-icon {
+      font-size: 28px;
+      color: var(--apple-primary);
+      margin-right: 10px;
+    }
+    
+    .summary-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F2F2F7;
+      flex-wrap: wrap;
+    }
+    
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+    
+    .summary-label {
+      color: var(--apple-secondary);
+      font-weight: 500;
+      font-size: 15px;
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    .summary-value {
+      font-weight: 600;
+      text-align: right;
+      font-size: 15px;
+      flex: 1;
+      min-width: 150px;
+      word-break: break-word;
+    }
+    
+    /* 音频生成页面样式 - 移动端优化 */
+    .audio-generation {
+      text-align: center;
+      padding: 30px 15px;
+    }
+    
+    .audio-icon {
+      font-size: 70px;
+      color: var(--apple-primary);
+      margin-bottom: 15px;
+      animation: pulse 2s infinite;
+    }
+    
+    .audio-generation h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: white;
+    }
+    
+    .audio-generation p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 25px;
+    }
+    
+    .progress-ring {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 25px;
+    }
+    
+    .progress-ring-circle {
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.35s;
+    }
+    
+    /* 动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* 响应式调整 - 小屏幕手机 */
+    @media (max-width: 380px) {
+      .language-switcher {
+        position: static;
+        justify-content: center;
+        margin-bottom: 15px;
+        align-self: center;
+        top: auto;
+        right: auto;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .header p {
+        font-size: 15px;
+      }
+      
+      .question-card {
+        padding: 15px;
+      }
+      
+      .question-card h2 {
+        font-size: 18px;
+      }
+      
+      .option-text {
+        font-size: 15px;
+      }
+      
+      .option-subtext {
+        font-size: 12px;
+      }
+      
+      .apple-button {
+        padding: 12px 16px;
+        font-size: 15px;
+        min-height: 46px;
+      }
+      
+      .progress-container {
+        padding: 12px;
+      }
+      
+      .step-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+      }
+      
+      .step-label {
+        font-size: 9px;
+      }
+      
+      .summary-item {
+        flex-direction: column;
+      }
+      
+      .summary-label, .summary-value {
+        text-align: left;
+        min-width: 100%;
+      }
+      
+      .summary-value {
+        margin-top: 5px;
+      }
+    }
+    
+    /* 横屏优化 */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .header {
+        padding-top: 10px;
+        margin-bottom: 15px;
+      }
+      
+      .header h1 {
+        font-size: 22px;
+      }
+      
+      .progress-container {
+        margin: 10px 0;
+        padding: 10px;
+      }
+      
+      .question-card {
+        padding: 15px;
+        margin-bottom: 10px;
+      }
+      
+      .button-container {
+        margin-top: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 语言切换器 -->
+    <div class="language-switcher">
+      <button class="lang-btn active" data-lang="zh">🇨🇳</button>
+      <button class="lang-btn" data-lang="ko">🇰🇷</button>
+      <button class="lang-btn" data-lang="en">🇺🇸</button>
+    </div>
+    
+    <!-- 页面1: 选择时长 -->
+    <section id="page1" class="page active">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step1">步骤 1/7 - 选择时长</p>
+      </div>
+      
+      <!-- 重新设计的进度指示器 -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 14%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">1</div>
+          <div class="step-label active" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">2</div>
+          <div class="step-label" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">3</div>
+          <div class="step-label" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">4</div>
+          <div class="step-label" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">5</div>
+          <div class="step-label" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">6</div>
+          <div class="step-label" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">7</div>
+          <div class="step-label" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">1</span> <span data-i18n="chooseDuration">⏱️选择时长（面包）</span></h2>
+        <div class="options">
+          <div class="option">
+            <input type="radio" id="duration1" name="duration" value="duration1">
+            <label for="duration1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="duration1">30'（6英寸）</div>
+                <div class="option-subtext" data-i18n="duration1Desc">快速品尝版</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="duration2" name="duration" value="duration2">
+            <label for="duration2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="duration2">60'（12英寸）</div>
+                <div class="option-subtext" data-i18n="duration2Desc">完整体验版</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" disabled><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next1" disabled><span data-i18n="next">下一步</span> <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+    
+    <!-- 页面2: 选择背景音乐 -->
+    <section id="page2" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step2">步骤 2/7 - 选择背景音乐</p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 28%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">1</div>
+          <div class="step-label" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">2</div>
+          <div class="step-label active" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">3</div>
+          <div class="step-label" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">4</div>
+          <div class="step-label" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">5</div>
+          <div class="step-label" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">6</div>
+          <div class="step-label" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">7</div>
+          <div class="step-label" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">2</span> <span data-i18n="chooseBgMusic">🎵选择背景音乐（底酱）</span></h2>
+        <div class="options">
+          <div class="option">
+            <input type="radio" id="bg1" name="bg" value="bg1">
+            <label for="bg1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="bg1">白噪音（美乃滋）</div>
+                <div class="option-subtext" data-i18n="bg1Desc">纯净无干扰的背景音</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="bg2" name="bg" value="bg2">
+            <label for="bg2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="bg2">行人讲话声（蜂蜜芥末）</div>
+                <div class="option-subtext" data-i18n="bg2Desc">街头巷尾的真实氛围</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="bg3" name="bg" value="bg3">
+            <label for="bg3" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="bg3">环境音（烧烤酱）</div>
+                <div class="option-subtext" data-i18n="bg3Desc">自然与城市的混合声景</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev2"><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next2" disabled><span data-i18n="next">下一步</span> <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+    
+    <!-- 页面3: 选择政治人物 -->
+    <section id="page3" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step3">步骤 3/7 - 选择政治人物</p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 42%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">1</div>
+          <div class="step-label" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">2</div>
+          <div class="step-label" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">3</div>
+          <div class="step-label active" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">4</div>
+          <div class="step-label" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">5</div>
+          <div class="step-label" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">6</div>
+          <div class="step-label" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">7</div>
+          <div class="step-label" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">3</span> <span data-i18n="choosePoliticians">👥选择政治人物（肉类）</span></h2>
+        <div class="options">
+          <div class="option checkbox-option">
+            <input type="checkbox" id="politician1" name="politician" value="politician1">
+            <label for="politician1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="politician1">特朗普（美式火鸡胸肉）</div>
+                <div class="option-subtext" data-i18n="politician1Desc">美国前总统，民粹主义代表</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="politician2" name="politician" value="politician2">
+            <label for="politician2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="politician2">习近平（中华烤鸭风味）</div>
+                <div class="option-subtext" data-i18n="politician2Desc">中国国家主席，中国特色社会主义</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="politician3" name="politician" value="politician3">
+            <label for="politician3" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="politician3">普京（俄式香肠）</div>
+                <div class="option-subtext" data-i18n="politician3Desc">俄罗斯总统，强权政治代表</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="politician4" name="politician" value="politician4">
+            <label for="politician4" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="politician4">李在明（韩式烤牛肉）</div>
+                <div class="option-subtext" data-i18n="politician4Desc">韩国共同民主党领袖，进步派</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="politician5" name="politician" value="politician5">
+            <label for="politician5" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="politician5">石破茂（日式照烧鸡）</div>
+                <div class="option-subtext" data-i18n="politician5Desc">日本自民党议员，保守派</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <p style="margin-top: 16px; font-size: 14px; color: var(--apple-secondary);" data-i18n="multiSelectNote">*政党同盟 / 多人并置（多选均可）</p>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev3"><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next3"><span data-i18n="next">下一步</span> <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+    
+    <!-- 页面4: 选择声音效果 -->
+    <section id="page4" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step4">步骤 4/7 - 选择声音效果</p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 56%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">1</div>
+          <div class="step-label" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">2</div>
+          <div class="step-label" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">3</div>
+          <div class="step-label" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">4</div>
+          <div class="step-label active" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">5</div>
+          <div class="step-label" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">6</div>
+          <div class="step-label" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">7</div>
+          <div class="step-label" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">4</span> <span data-i18n="chooseSoundEffects">🔊选择声音效果（蔬菜）</span></h2>
+        <div class="options">
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege1" name="vege" value="vege1">
+            <label for="vege1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege1">人群欢呼（生菜）</div>
+                <div class="option-subtext" data-i18n="vege1Desc">热烈支持的氛围</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege2" name="vege" value="vege2">
+            <label for="vege2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege2">新闻播报片段（西红柿）</div>
+                <div class="option-subtext" data-i18n="vege2Desc">权威媒体的报道</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege3" name="vege" value="vege3">
+            <label for="vege3" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege3">抗议口号（洋葱）</div>
+                <div class="option-subtext" data-i18n="vege3Desc">不同意见的表达</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege4" name="vege" value="vege4">
+            <label for="vege4" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege4">枪声 / 爆炸声（青椒）</div>
+                <div class="option-subtext" data-i18n="vege4Desc">冲突与紧张局势</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege5" name="vege" value="vege5">
+            <label for="vege5" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege5">嘲笑声（酸黄瓜）</div>
+                <div class="option-subtext" data-i18n="vege5Desc">讽刺与不认同</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege6" name="vege" value="vege6">
+            <label for="vege6" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege6">暴力冲突（墨西哥辣椒）</div>
+                <div class="option-subtext" data-i18n="vege6Desc">极端对抗场景</div>
+              </div>
+            </label>
+          </div>
+          <div class="option checkbox-option">
+            <input type="checkbox" id="vege7" name="vege" value="vege7">
+            <label for="vege7" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="vege7">信息混乱音墙（全部蔬菜）</div>
+                <div class="option-subtext" data-i18n="vege7Desc">所有声音的混合</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev4"><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next4"><span data-i18n="next">下一步</span> <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+    
+    <!-- 页面5: 选择音乐效果 -->
+    <section id="page5" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step5">步骤 5/7 - 选择音乐效果</p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 70%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">1</div>
+          <div class="step-label" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">2</div>
+          <div class="step-label" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">3</div>
+          <div class="step-label" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">4</div>
+          <div class="step-label" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">5</div>
+          <div class="step-label active" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">6</div>
+          <div class="step-label" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">7</div>
+          <div class="step-label" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">5</span> <span data-i18n="chooseMusicEffects">🎛️选择音乐效果（调味酱）</span></h2>
+        <div class="options">
+          <div class="option">
+            <input type="radio" id="sauce1" name="sauce" value="sauce1">
+            <label for="sauce1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="sauce1">国歌变奏（蛋黄酱）</div>
+                <div class="option-subtext" data-i18n="sauce1Desc">庄严而传统的氛围</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="sauce2" name="sauce" value="sauce2">
+            <label for="sauce2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="sauce2">流行乐伴奏（千岛酱）</div>
+                <div class="option-subtext" data-i18n="sauce2Desc">轻松大众化的风格</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="sauce3" name="sauce" value="sauce3">
+            <label for="sauce3" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="sauce3">说唱节拍（西南酱）</div>
+                <div class="option-subtext" data-i18n="sauce3Desc">节奏感强的现代风格</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev5"><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next5" disabled><span data-i18n="next">下一步</span> <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+    
+    <!-- 页面6: 选择音乐风格 -->
+    <section id="page6" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step6">步骤 6/7 - 选择音乐风格</p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 84%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">1</div>
+          <div class="step-label" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">2</div>
+          <div class="step-label" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">3</div>
+          <div class="step-label" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">4</div>
+          <div class="step-label" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">5</div>
+          <div class="step-label" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">6</div>
+          <div class="step-label active" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">7</div>
+          <div class="step-label" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">6</span> <span data-i18n="chooseMusicStyle">🎨选择音乐风格（加热与包装）</span></h2>
+        <div class="options">
+          <div class="option">
+            <input type="radio" id="style1" name="style" value="style1">
+            <label for="style1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="style1">电子噪音风</div>
+                <div class="option-subtext" data-i18n="style1Desc">前卫实验的数字声效</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="style2" name="style" value="style2">
+            <label for="style2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="style2">当代古典风</div>
+                <div class="option-subtext" data-i18n="style2Desc">传统与现代的结合</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="style3" name="style" value="style3">
+            <label for="style3" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="style3">嘻哈混音风</div>
+                <div class="option-subtext" data-i18n="style3Desc">街头文化的节奏感</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="style4" name="style" value="style4">
+            <label for="style4" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="style4">极简主义拼贴风</div>
+                <div class="option-subtext" data-i18n="style4Desc">简洁而富有层次</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="style5" name="style" value="style5">
+            <label for="style5" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="style5">即兴实验风</div>
+                <div class="option-subtext" data-i18n="style5Desc">自由发挥的创意表达</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev6"><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next6" disabled><span data-i18n="next">下一步</span> <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+    
+    <!-- 页面7: 选择套餐 -->
+    <section id="page7" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 点单表</h1>
+        <p data-i18n="step7">步骤 7/7 - 选择套餐</p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress" style="width: 100%"></div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">1</div>
+          <div class="step-label" data-i18n="duration">时长</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">2</div>
+          <div class="step-label" data-i18n="bgMusic">背景音乐</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">3</div>
+          <div class="step-label" data-i18n="politicians">政治人物</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">4</div>
+          <div class="step-label" data-i18n="soundEffects">声音效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">5</div>
+          <div class="step-label" data-i18n="musicEffects">音乐效果</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle completed">6</div>
+          <div class="step-label" data-i18n="musicStyle">音乐风格</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle active">7</div>
+          <div class="step-label active" data-i18n="package">套餐</div>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <h2><span class="step-number">7</span> <span data-i18n="choosePackage">🎁套餐选择（附赠）</span></h2>
+        <div class="options">
+          <div class="option">
+            <input type="radio" id="package1" name="package" value="package1">
+            <label for="package1" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="package1">套餐A：政治三明治 + 视频影像（宣传片段）</div>
+                <div class="option-subtext" data-i18n="package1Desc">视觉与听觉的完整体验</div>
+              </div>
+            </label>
+          </div>
+          <div class="option">
+            <input type="radio" id="package2" name="package" value="package2">
+            <label for="package2" class="option-label">
+              <span class="option-circle"></span>
+              <div>
+                <div class="option-text" data-i18n="package2">套餐B：政治三明治 + 观众集体口号录音</div>
+                <div class="option-subtext" data-i18n="package2Desc">互动参与的独特体验</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev7"><i class="fas fa-arrow-left"></i><span data-i18n="prev">上一步</span></button>
+        <button class="apple-button primary" id="next7" disabled data-i18n="submitOrder">提交订单</button>
+      </div>
+    </section>
+    
+    <!-- 页面8: 最终确认页面 -->
+    <section id="page8" class="page">
+      <div class="header">
+        <h1 data-i18n="title">🥪 政治三明治 · 订单确认</h1>
+        <p data-i18n="confirmDesc">请确认您的选择</p>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-header">
+          <div class="summary-icon">
+            <i class="fas fa-clipboard-check"></i>
+          </div>
+          <h2 data-i18n="summaryTitle">您的选择摘要</h2>
+        </div>
+        <div class="summary-list" id="summaryList">
+          <!-- 选择摘要将通过JavaScript动态生成 -->
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="apple-button secondary" id="prev8"><i class="fas fa-edit"></i><span data-i18n="edit">返回修改</span></button>
+        <button class="apple-button primary" id="confirmOrder"><i class="fas fa-check"></i><span data-i18n="confirmGenerate">确认并生成音频</span></button>
+      </div>
+    </section>
+    
+    <!-- 页面9: 音频生成页面 -->
+    <section id="page9" class="page">
+      <div class="audio-generation">
+        <div class="audio-icon">
+          <i class="fas fa-music"></i>
+        </div>
+        <h2 data-i18n="generating">音频生成中...⏱️🎵👥🔊🎛️🎨🎁</h2>
+        <p data-i18n="generatingDesc">我们正在根据您的选择制作专属音频</p>
+        
+        <div class="progress-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#E5E5EA" stroke-width="8"/>
+            <circle class="progress-ring-circle" cx="60" cy="60" r="54" fill="none" stroke="#007AFF" stroke-width="8" stroke-dasharray="339.292" stroke-dashoffset="339.292"/>
+          </svg>
+        </div>
+        
+        <div class="button-container">
+          <button class="apple-button primary" id="downloadAudio" disabled><i class="fas fa-download"></i><span data-i18n="downloadAudio">下载音频文件</span></button>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <!-- 确认模态框 -->
+  <div id="confirmationModal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+      <div class="modal-icon">
+        <i class="fas fa-question-circle"></i>
+      </div>
+      <h3 data-i18n="modalTitle">确认选择</h3>
+      <p data-i18n="modalDesc">您确定要选择这个选项吗？</p>
+      <div class="modal-buttons">
+        <button class="apple-button secondary" id="modalCancel" data-i18n="modalCancel">再想想</button>
+        <button class="apple-button primary" id="modalConfirm" data-i18n="modalConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 多语言支持 - 完整翻译
+    const translations = {
+      zh: {
+        // 通用文本
+        title: "🥪 政治三明治 · 点单表",
+        prev: "上一步",
+        next: "下一步",
+        submitOrder: "提交订单",
+        edit: "返回修改",
+        confirmGenerate: "确认并生成音频",
+        downloadAudio: "下载音频文件",
+        generating: "音频生成中...",
+        generatingDesc: "我们正在根据您的选择制作专属音频",
+        summaryTitle: "您的选择摘要",
+        confirmDesc: "请确认您的选择",
+        modalTitle: "确认选择",
+        modalDesc: "您确定要选择这个选项吗？",
+        modalCancel: "再想想",
+        modalConfirm: "确定",
+        notSelected: "未选择",
+        
+        // 步骤标题
+        step1: "步骤 1/7 - 选择时长",
+        step2: "步骤 2/7 - 选择背景音乐",
+        step3: "步骤 3/7 - 选择政治人物",
+        step4: "步骤 4/7 - 选择声音效果",
+        step5: "步骤 5/7 - 选择音乐效果",
+        step6: "步骤 6/7 - 选择音乐风格",
+        step7: "步骤 7/7 - 选择套餐",
+        
+        // 进度指示器标签
+        duration: "时长",
+        bgMusic: "背景音乐",
+        politicians: "政治人物",
+        soundEffects: "声音效果",
+        musicEffects: "音乐效果",
+        musicStyle: "音乐风格",
+        package: "套餐",
+        
+        // 问题标题
+        chooseDuration: "选择时长（面包）",
+        chooseBgMusic: "选择背景音乐（底酱）",
+        choosePoliticians: "选择政治人物（肉类）",
+        chooseSoundEffects: "选择声音效果（蔬菜）",
+        chooseMusicEffects: "选择音乐效果（调味酱）",
+        chooseMusicStyle: "选择音乐风格（加热与包装）",
+        choosePackage: "🎧 套餐选择（附赠）",
+        
+        // 选项文本
+        duration1: "30'（6英寸）",
+        duration1Desc: "快速品尝版",
+        duration2: "60'（12英寸）",
+        duration2Desc: "完整体验版",
+        
+        bg1: "白噪音（美乃滋）",
+        bg1Desc: "纯净无干扰的背景音",
+        bg2: "行人讲话声（蜂蜜芥末）",
+        bg2Desc: "街头巷尾的真实氛围",
+        bg3: "环境音（烧烤酱）",
+        bg3Desc: "自然与城市的混合声景",
+        
+        politician1: "特朗普（美式火鸡胸肉）",
+        politician1Desc: "美国前总统，民粹主义代表",
+        politician2: "习近平（中华烤鸭风味）",
+        politician2Desc: "中国国家主席，中国特色社会主义",
+        politician3: "普京（俄式香肠）",
+        politician3Desc: "俄罗斯总统，强权政治代表",
+        politician4: "李在明（韩式烤牛肉）",
+        politician4Desc: "韩国共同民主党领袖，进步派",
+        politician5: "石破茂（日式照烧鸡）",
+        politician5Desc: "日本自民党议员，保守派",
+        
+        multiSelectNote: "*政党同盟 / 多人并置（多选均可）",
+        
+        vege1: "人群欢呼（生菜）",
+        vege1Desc: "热烈支持的氛围",
+        vege2: "新闻播报片段（西红柿）",
+        vege2Desc: "权威媒体的报道",
+        vege3: "抗议口号（洋葱）",
+        vege3Desc: "不同意见的表达",
+        vege4: "枪声 / 爆炸声（青椒）",
+        vege4Desc: "冲突与紧张局势",
+        vege5: "嘲笑声（酸黄瓜）",
+        vege5Desc: "讽刺与不认同",
+        vege6: "暴力冲突（墨西哥辣椒）",
+        vege6Desc: "极端对抗场景",
+        vege7: "信息混乱音墙（全部蔬菜）",
+        vege7Desc: "所有声音的混合",
+        
+        sauce1: "国歌变奏（蛋黄酱）",
+        sauce1Desc: "庄严而传统的氛围",
+        sauce2: "流行乐伴奏（千岛酱）",
+        sauce2Desc: "轻松大众化的风格",
+        sauce3: "说唱节拍（西南酱）",
+        sauce3Desc: "节奏感强的现代风格",
+        
+        style1: "电子噪音风",
+        style1Desc: "前卫实验的数字声效",
+        style2: "当代古典风",
+        style2Desc: "传统与现代的结合",
+        style3: "嘻哈混音风",
+        style3Desc: "街头文化的节奏感",
+        style4: "极简主义拼贴风",
+        style4Desc: "简洁而富有层次",
+        style5: "即兴实验风",
+        style5Desc: "自由发挥的创意表达",
+        
+        package1: "套餐A：政治三明治 + 视频影像（宣传片段）",
+        package1Desc: "视觉与听觉的完整体验",
+        package2: "套餐B：政治三明治 + 观众集体口号录音",
+        package2Desc: "互动参与的独特体验"
+      },
+      ko: {
+        // 通用文本
+        title: "🥪 정치 샌드위치 · 주문서",
+        prev: "이전",
+        next: "다음",
+        submitOrder: "주문 제출",
+        edit: "수정하기",
+        confirmGenerate: "확인 및 오디오 생성",
+        downloadAudio: "오디오 파일 다운로드",
+        generating: "오디오 생성 중...",
+        generatingDesc: "선택하신 내용에 따라 맞춤형 오디오를 제작 중입니다",
+        summaryTitle: "선택 요약",
+        confirmDesc: "선택하신 내용을 확인해주세요",
+        modalTitle: "선택 확인",
+        modalDesc: "이 옵션을 선택하시겠습니까?",
+        modalCancel: "다시 생각해볼게요",
+        modalConfirm: "확인",
+        notSelected: "선택 안 함",
+        
+        // 步骤标题
+        step1: "단계 1/7 - 시간 선택",
+        step2: "단계 2/7 - 배경 음악 선택",
+        step3: "단계 3/7 - 정치인 선택",
+        step4: "단계 4/7 - 음향 효과 선택",
+        step5: "단계 5/7 - 음악 효과 선택",
+        step6: "단계 6/7 - 음악 스타일 선택",
+        step7: "단계 7/7 - 패키지 선택",
+        
+        // 进度指示器标签
+        duration: "시간",
+        bgMusic: "배경 음악",
+        politicians: "정치인",
+        soundEffects: "음향 효과",
+        musicEffects: "음악 효과",
+        musicStyle: "음악 스타일",
+        package: "패키지",
+        
+        // 问题标题
+        chooseDuration: "⏱️시간 선택 (빵)",
+        chooseBgMusic: "🎵배경 음악 선택 (소스)",
+        choosePoliticians: "👥정치인 선택 (고기)",
+        chooseSoundEffects: "🔊음향 효과 선택 (야채)",
+        chooseMusicEffects: "🎛️음악 효과 선택 (조미료)",
+        chooseMusicStyle: "🎨음악 스타일 선택 (가열 및 포장)",
+        choosePackage: "🎁패키지 선택 (추가)",
+        
+        // 选项文本
+        duration1: "30초 (6인치)",
+        duration1Desc: "빠른 맛보기 버전",
+        duration2: "60초 (12인치)",
+        duration2Desc: "완전한 경험 버전",
+        
+        bg1: "화이트 노이즈 (마요네즈)",
+        bg1Desc: "순수하고 방해되지 않는 배경음",
+        bg2: "보행자 대화 소리 (허니 머스타드)",
+        bg2Desc: "거리의 실제 분위기",
+        bg3: "환경음 (바베큐 소스)",
+        bg3Desc: "자연과 도시의 혼합 음향",
+        
+        politician1: "도널드 트럼프 (미식 터키 가슴살)",
+        politician1Desc: "미국 전 대통령, 포퓰리즘 대표",
+        politician2: "시진핑(중화 오리구이 풍미)",
+        politician2Desc: "중국 국가주석, 중국 특색 사회주의", 
+        politician3: "블라디미르 푸틴 (러시아식 소시지)",
+        politician3Desc: "러시아 대통령, 강권 정치 대표",
+        politician4: "이재명 (한식 불고기)",
+        politician4Desc: "한국 더불어민주당 대표, 진보파",
+        politician5: "이시바 시게루 (일식 데리야키 치킨)",
+        politician5Desc: "일본 자민당 의원, 보수파",
+        
+        multiSelectNote: "*정당 동맹 / 다수 병치 (다중 선택 가능)",
+        
+        vege1: "군중 환호 (양상추)",
+        vege1Desc: "열렬한 지지 분위기",
+        vege2: "뉴스 보도 클립 (토마토)",
+        vege2Desc: "권위 있는 미디어 보도",
+        vege3: "시위 구호 (양파)",
+        vege3Desc: "다른 의견 표현",
+        vege4: "총성 / 폭발음 (피망)",
+        vege4Desc: "갈등과 긴장 상황",
+        vege5: "비웃음 소리 (피클)",
+        vege5Desc: "비판과 비동의",
+        vege6: "폭력 충돌 (할라피뇨)",
+        vege6Desc: "극단적 대립 장면",
+        vege7: "정보 혼란 음향 벽 (모든 야채)",
+        vege7Desc: "모든 소리의 혼합",
+        
+        sauce1: "국가 변주 (마요네즈)",
+        sauce1Desc: "엄숙하고 전통적인 분위기",
+        sauce2: "팝 음악 반주 (사우전드 아일랜드 드레싱)",
+        sauce2Desc: "가볍고 대중적인 스타일",
+        sauce3: "랩 비트 (사우스웨스트 소스)",
+        sauce3Desc: "리듬감 있는 현대 스타일",
+        
+        style1: "일렉트로닉 노이즈 스타일",
+        style1Desc: "전위 실험적인 디지털 사운드",
+        style2: "현대 클래식 스타일",
+        style2Desc: "전통과 현대의 결합",
+        style3: "힙합 리믹스 스타일",
+        style3Desc: "스트릿 문화의 리듬감",
+        style4: "미니멀리즘 콜라주 스타일",
+        style4Desc: "간결하면서도 풍부한 층위",
+        style5: "즉흥 실험 스타일",
+        style5Desc: "자유로운 창의적 표현",
+        
+        package1: "패키지 A: 정치 샌드위치 + 비디오 영상 (홍보 클립)",
+        package1Desc: "시각과 청각의 완전한 경험",
+        package2: "패키지 B: 정치 샌드위치 + 관중 집단 구호 녹음",
+        package2Desc: "상호 참여의 독특한 경험"
+      },
+      en: {
+        // 通用文本
+        title: "🥪 Political Sandwich · Order Form",
+        prev: "Previous",
+        next: "Next",
+        submitOrder: "Submit Order",
+        edit: "Edit",
+        confirmGenerate: "Confirm and Generate Audio",
+        downloadAudio: "Download Audio File",
+        generating: "Generating Audio...",
+        generatingDesc: "We're creating your custom audio based on your selections",
+        summaryTitle: "Your Selection Summary",
+        confirmDesc: "Please confirm your selections",
+        modalTitle: "Confirm Selection",
+        modalDesc: "Are you sure you want to select this option?",
+        modalCancel: "Think Again",
+        modalConfirm: "Confirm",
+        notSelected: "Not selected",
+        
+        // 步骤标题
+        step1: "Step 1/7 - Select Duration",
+        step2: "Step 2/7 - Select Background Music",
+        step3: "Step 3/7 - Select Politicians",
+        step4: "Step 4/7 - Select Sound Effects",
+        step5: "Step 5/7 - Select Music Effects",
+        step6: "Step 6/7 - Select Music Style",
+        step7: "Step 7/7 - Select Package",
+        
+        // 进度指示器标签
+        duration: "Duration",
+        bgMusic: "Background Music",
+        politicians: "Politicians",
+        soundEffects: "Sound Effects",
+        musicEffects: "Music Effects",
+        musicStyle: "Music Style",
+        package: "Package",
+        
+        // 问题标题
+        chooseDuration: "⏱️Select Duration (Bread)",
+        chooseBgMusic: "🎵Select Background Music (Sauce)",
+        choosePoliticians: "👥Select Politicians (Meat)",
+        chooseSoundEffects: "🔊Select Sound Effects (Vegetables)",
+        chooseMusicEffects: "🎛️Select Music Effects (Seasoning)",
+        chooseMusicStyle: "🎨Select Music Style (Heating & Packaging)",
+        choosePackage: "🎁Select Package (Bonus)",
+        
+        // 选项文本
+        duration1: "30' (6-inch)",
+        duration1Desc: "Quick Taste Version",
+        duration2: "60' (12-inch)",
+        duration2Desc: "Full Experience Version",
+        
+        bg1: "White Noise (Mayonnaise)",
+        bg1Desc: "Pure, non-distracting background sound",
+        bg2: "Pedestrian Conversation (Honey Mustard)",
+        bg2Desc: "Real street atmosphere",
+        bg3: "Ambient Sound (BBQ Sauce)",
+        bg3Desc: "Mix of natural and urban soundscape",
+        
+        politician1: "Donald Trump (American Turkey Breast)",
+        politician1Desc: "Former US President, populism representative",
+        politician2: "Xi Jinping (Chinese Roast Duck Flavor)", 
+        politician2Desc: "President of China, Socialism with Chinese Characteristics", 
+        politician3: "Vladimir Putin (Russian Sausage)",
+        politician3Desc: "Russian President, strongman politics representative",
+        politician4: "Lee Jae-myung (Korean Bulgogi)",
+        politician4Desc: "Leader of South Korea's Democratic Party, progressive",
+        politician5: "Shigeru Ishiba (Japanese Teriyaki Chicken)",
+        politician5Desc: "Japanese LDP lawmaker, conservative",
+        
+        multiSelectNote: "*Party alliances / Multiple placements (Multiple selection allowed)",
+        
+        vege1: "Crowd Cheers (Lettuce)",
+        vege1Desc: "Enthusiastic support atmosphere",
+        vege2: "News Broadcast Clips (Tomato)",
+        vege2Desc: "Authoritative media coverage",
+        vege3: "Protest Slogans (Onion)",
+        vege3Desc: "Expression of differing opinions",
+        vege4: "Gunshots / Explosions (Bell Pepper)",
+        vege4Desc: "Conflict and tense situations",
+        vege5: "Mocking Laughter (Pickles)",
+        vege5Desc: "Sarcasm and disapproval",
+        vege6: "Violent Conflict (Jalapeño)",
+        vege6Desc: "Extreme confrontation scenes",
+        vege7: "Information Chaos Sound Wall (All Vegetables)",
+        vege7Desc: "Mix of all sounds",
+        
+        sauce1: "National Anthem Variation (Mayonnaise)",
+        sauce1Desc: "Solemn and traditional atmosphere",
+        sauce2: "Pop Music Accompaniment (Thousand Island Dressing)",
+        sauce2Desc: "Light and popular style",
+        sauce3: "Rap Beats (Southwest Sauce)",
+        sauce3Desc: "Rhythmic modern style",
+        
+        style1: "Electronic Noise Style",
+        style1Desc: "Avant-garde experimental digital sound",
+        style2: "Contemporary Classical Style",
+        style2Desc: "Combination of traditional and modern",
+        style3: "Hip Hop Remix Style",
+        style3Desc: "Rhythm of street culture",
+        style4: "Minimalist Collage Style",
+        style4Desc: "Simple yet rich layers",
+        style5: "Improvisational Experimental Style",
+        style5Desc: "Free creative expression",
+        
+        package1: "Package A: Political Sandwich + Video (Promotional Clips)",
+        package1Desc: "Complete visual and auditory experience",
+        package2: "Package B: Political Sandwich + Audience Collective Slogan Recording",
+        package2Desc: "Interactive participation experience"
+      }
+    };
+
+    // 当前语言
+    let currentLang = 'zh';
+    
+    // 切换语言函数
+    function switchLanguage(lang) {
+      currentLang = lang;
+      
+      // 更新语言按钮状态
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.getAttribute('data-lang') === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      
+      // 更新所有带data-i18n属性的元素
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          element.textContent = translations[lang][key];
+        }
+      });
+      
+      // 更新HTML的lang属性
+      document.documentElement.lang = lang;
+      
+      // 如果当前在摘要页面，重新生成摘要
+      if (document.getElementById('page8').classList.contains('active')) {
+        generateSummary();
+      }
+    }
+    
+    // 页面导航逻辑
+    const pages = [
+      'page1', 'page2', 'page3', 'page4', 'page5', 'page6', 'page7', 'page8', 'page9'
+    ];
+    
+    // 用户选择存储
+    const userSelections = {
+      duration: null,
+      bg: null,
+      politician: [],
+      vege: [],
+      sauce: null,
+      style: null,
+      package: null
+    };
+    
+    // 当前页面索引
+    let currentPageIndex = 0;
+    
+    // 显示指定页面
+    function showPage(pageIndex) {
+      // 隐藏所有页面
+      pages.forEach(pageId => {
+        document.getElementById(pageId).classList.remove('active');
+      });
+      
+      // 显示当前页面
+      document.getElementById(pages[pageIndex]).classList.add('active');
+      currentPageIndex = pageIndex;
+      
+      // 更新进度指示器
+      updateProgressIndicator(pageIndex);
+      
+      // 如果是确认页面，生成摘要
+      if (pageIndex === 7) {
+        generateSummary();
+      }
+    }
+    
+    // 更新进度指示器
+    function updateProgressIndicator(pageIndex) {
+      // 重置所有步骤状态
+      document.querySelectorAll('.step-circle').forEach((circle, index) => {
+        circle.classList.remove('active', 'completed');
+        document.querySelectorAll('.step-label')[index].classList.remove('active');
+        
+        if (index < pageIndex) {
+          circle.classList.add('completed');
+        } else if (index === pageIndex) {
+          circle.classList.add('active');
+          document.querySelectorAll('.step-label')[index].classList.add('active');
+        }
+      });
+      
+      // 更新进度条
+      const progressPercentage = (pageIndex / (pages.length - 2)) * 100;
+      document.querySelector('.progress').style.width = `${progressPercentage}%`;
+    }
+    
+    // 下一步按钮点击事件
+    function setupNextButtons() {
+      for (let i = 1; i <= 7; i++) {
+        const nextButton = document.getElementById(`next${i}`);
+        if (nextButton) {
+          nextButton.addEventListener('click', () => {
+            // 显示确认模态框
+            document.getElementById('confirmationModal').style.display = 'flex';
+            
+            // 设置模态框确认按钮的回调
+            document.getElementById('modalConfirm').onclick = () => {
+              // 隐藏模态框
+              document.getElementById('confirmationModal').style.display = 'none';
+              
+              // 前进到下一页
+              showPage(currentPageIndex + 1);
+            };
+            
+            // 设置模态框取消按钮的回调
+            document.getElementById('modalCancel').onclick = () => {
+              document.getElementById('confirmationModal').style.display = 'none';
+            };
+          });
+        }
+      }
+      
+      // 最终确认按钮
+      document.getElementById('confirmOrder').addEventListener('click', () => {
+        // 显示确认模态框
+        document.getElementById('confirmationModal').style.display = 'flex';
+        
+        // 设置模态框确认按钮的回调
+        document.getElementById('modalConfirm').onclick = () => {
+          // 隐藏模态框
+          document.getElementById('confirmationModal').style.display = 'none';
+          
+          // 跳转到音频生成页面
+          showPage(8);
+          simulateAudioGeneration();
+        };
+        
+        // 设置模态框取消按钮的回调
+        document.getElementById('modalCancel').onclick = () => {
+          document.getElementById('confirmationModal').style.display = 'none';
+        };
+      });
+    }
+    
+    // 上一步按钮点击事件
+    function setupPrevButtons() {
+      for (let i = 2; i <= 8; i++) {
+        const prevButton = document.getElementById(`prev${i}`);
+        if (prevButton) {
+          prevButton.addEventListener('click', () => {
+            showPage(currentPageIndex - 1);
+          });
+        }
+      }
+    }
+    
+    // 设置选项选择逻辑
+    function setupOptionSelection() {
+      // 单选按钮逻辑
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          // 更新用户选择
+          const name = this.name;
+          userSelections[name] = this.value;
+          
+          // 启用下一步按钮
+          enableNextButton();
+          
+          // 更新选项样式
+          updateOptionStyles(this);
+        });
+      });
+      
+      // 多选按钮逻辑
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const name = this.name;
+          
+          // 处理"全部蔬菜"选项的特殊逻辑
+          if (name === 'vege' && this.value === 'vege7') {
+            if (this.checked) {
+              // 禁用其他蔬菜选项
+              document.querySelectorAll('input[name="vege"]').forEach(cb => {
+                if (cb !== this) {
+                  cb.checked = false;
+                  cb.disabled = true;
+                  cb.closest('.option').classList.remove('selected');
+                }
+              });
+              userSelections[name] = [this.value];
+            } else {
+              // 启用其他蔬菜选项
+              document.querySelectorAll('input[name="vege"]').forEach(cb => {
+                cb.disabled = false;
+              });
+            }
+          } else if (name === 'vege') {
+            // 如果选择了其他蔬菜选项，取消"全部蔬菜"选项
+            const allVegetables = document.querySelector('input[value="vege7"]');
+            if (allVegetables) {
+              allVegetables.checked = false;
+              allVegetables.disabled = false;
+            }
+          }
+          
+          // 更新用户选择
+          if (this.checked) {
+            if (!userSelections[name].includes(this.value)) {
+              userSelections[name].push(this.value);
+            }
+          } else {
+            const index = userSelections[name].indexOf(this.value);
+            if (index > -1) {
+              userSelections[name].splice(index, 1);
+            }
+          }
+          
+          // 启用下一步按钮
+          enableNextButton();
+          
+          // 更新选项样式
+          updateOptionStyles(this);
+        });
+      });
+    }
+    
+    // 启用下一步按钮
+    function enableNextButton() {
+      const currentPage = pages[currentPageIndex];
+      
+      // 检查当前页面是否有必选选项
+      let hasSelection = false;
+      
+      if (currentPage === 'page3' || currentPage === 'page4') {
+        // 多选页面，至少选一个
+        const inputName = getInputNameForPage(currentPage);
+        hasSelection = userSelections[inputName].length > 0;
+      } else {
+        // 单选页面，必须有值
+        const inputName = getInputNameForPage(currentPage);
+        hasSelection = userSelections[inputName] !== null;
+      }
+      
+      const nextButton = document.getElementById(`next${currentPageIndex + 1}`);
+      if (nextButton) {
+        nextButton.disabled = !hasSelection;
+      }
+    }
+    
+    // 根据页面获取输入名称
+    function getInputNameForPage(pageId) {
+      switch(pageId) {
+        case 'page1': return 'duration';
+        case 'page2': return 'bg';
+        case 'page3': return 'politician';
+        case 'page4': return 'vege';
+        case 'page5': return 'sauce';
+        case 'page6': return 'style';
+        case 'page7': return 'package';
+        default: return null;
+      }
+    }
+    
+    // 更新选项样式
+    function updateOptionStyles(selectedInput) {
+      // 移除所有选项的选中样式
+      document.querySelectorAll('.option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // 为选中的选项添加样式
+      if (selectedInput.type === 'radio') {
+        // 单选：只选中一个
+        const selectedOption = selectedInput.closest('.option');
+        if (selectedOption) {
+          selectedOption.classList.add('selected');
+        }
+      } else {
+        // 多选：选中所有已选择的
+        document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+          const selectedOption = checkbox.closest('.option');
+          if (selectedOption) {
+            selectedOption.classList.add('selected');
+          }
+        });
+      }
+    }
+    
+    // 生成订单摘要
+    function generateSummary() {
+      const summaryList = document.getElementById('summaryList');
+      summaryList.innerHTML = '';
+      
+      // 添加每个选择到摘要
+      for (const [key, value] of Object.entries(userSelections)) {
+        const summaryItem = document.createElement('div');
+        summaryItem.className = 'summary-item';
+        
+        const label = document.createElement('div');
+        label.className = 'summary-label';
+        label.textContent = getLabelForSelection(key);
+        
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'summary-value';
+        
+        if (Array.isArray(value)) {
+          // 处理多选值
+          const translatedValues = value.map(v => getTranslatedValue(v));
+          valueDiv.textContent = translatedValues.join(', ');
+        } else {
+          // 处理单选值
+          valueDiv.textContent = getTranslatedValue(value) || translations[currentLang].notSelected;
+        }
+        
+        summaryItem.appendChild(label);
+        summaryItem.appendChild(valueDiv);
+        summaryList.appendChild(summaryItem);
+      }
+    }
+    
+    // 获取选择项的标签
+    function getLabelForSelection(key) {
+      const labels = {
+        duration: '⏱️ ' + translations[currentLang].duration,
+        bg: '🎵 ' + translations[currentLang].bgMusic,
+        politician: '👥 ' + translations[currentLang].politicians,
+        vege: '🔊 ' + translations[currentLang].soundEffects,
+        sauce: '🎛️ ' + translations[currentLang].musicEffects,
+        style: '🎨 ' + translations[currentLang].musicStyle,
+        package: '🎁 ' + translations[currentLang].package
+      };
+      
+      return labels[key] || key;
+    }
+    
+    // 获取值的翻译 - 修复版本
+    function getTranslatedValue(valueKey) {
+      if (!valueKey) return null;
+      
+      // 直接使用存储的键来获取翻译
+      if (translations[currentLang] && translations[currentLang][valueKey]) {
+        // 获取主文本（不带描述的文本）
+        const fullText = translations[currentLang][valueKey];
+        
+        // 如果是政治人物、声音效果、音乐效果等需要显示描述的选项
+        // 我们只返回主文本部分（去掉描述）
+        if (valueKey.includes('politician') || valueKey.includes('vege') || 
+            valueKey.includes('sauce') || valueKey.includes('style') || 
+            valueKey.includes('package') || valueKey.includes('duration') || 
+            valueKey.includes('bg')) {
+          // 对于包含括号的文本，只返回括号前的内容
+          const mainText = fullText.split('（')[0];
+          return mainText;
+        }
+        
+        return fullText;
+      }
+      
+      // 如果没有找到匹配的翻译，返回原值
+      return valueKey;
+    }
+    
+    // 模拟音频生成过程
+    function simulateAudioGeneration() {
+      const progressCircle = document.querySelector('.progress-ring-circle');
+      const downloadButton = document.getElementById('downloadAudio');
+      let progress = 0;
+      
+      const interval = setInterval(() => {
+        progress += 1;
+        const offset = 339.292 - (339.292 * progress) / 100;
+        progressCircle.style.strokeDashoffset = offset;
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          document.querySelector('.audio-generation h2').textContent = translations[currentLang].generating.replace('...', ' 완료!');
+          document.querySelector('.audio-generation p').textContent = translations[currentLang].generatingDesc;
+          downloadButton.disabled = false;
+          downloadButton.innerHTML = '<i class="fas fa-download"></i> ' + translations[currentLang].downloadAudio;
+        }
+      }, 50);
+    }
+    
+    // 初始化页面
+    function init() {
+      // 设置语言切换按钮事件
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const lang = this.getAttribute('data-lang');
+          switchLanguage(lang);
+        });
+      });
+      
+      // 设置下一步按钮事件
+      setupNextButtons();
+      
+      // 设置上一步按钮事件
+      setupPrevButtons();
+      
+      // 设置选项选择逻辑
+      setupOptionSelection();
+      
+      // 设置下载按钮
+      document.getElementById('downloadAudio').addEventListener('click', () => {
+        alert(translations[currentLang].downloadAudio + ' 기능은 완전한 버전에서 구현됩니다');
+      });
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
